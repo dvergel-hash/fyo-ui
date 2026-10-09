@@ -9,8 +9,9 @@ Patrones probados en las apps de fyo. Cada uno dice qué clases y variables de `
 import type { ReactNode } from "react";
 import "fyo-ui/css/fyo.css";
 import favicon from "fyo-ui/marca/favicon.ico";
+import { urlImagen } from "@/app/formato";
 
-export const metadata = { title: "Presupuesto Infraestructura · fyo", icons: { icon: favicon.src } };
+export const metadata = { title: "Presupuesto Infraestructura · fyo", icons: { icon: urlImagen(favicon) } };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -23,6 +24,38 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 - Un solo import del CSS; Poppins 400/500/600 viene con él (no uses `next/font/google`).
 - Los estilos propios de la app van en un `app.css` importado **después**, y solo con `var(--…)`.
+- Toda imagen importada de `fyo-ui/marca/` (logos, favicon) pasa por `urlImagen` (abajo); nunca leas `.src` directo.
+
+### Imágenes importadas: `urlImagen`
+
+Con **Turbopack** (el empaquetador por defecto de Next 16), una imagen importada desde `node_modules` —como `fyo-ui/marca/logo-fyo-color.png`— llega como la **URL (un `string`)**, no como `StaticImageData`. Si leés su `.src`, el valor es `undefined`, el `<img>` sale sin `src` y el logo se ve roto; ni `tsc` ni `next build` lo detectan. Con webpack, en cambio, llega como `StaticImageData`. El helper acepta las dos formas:
+
+```ts
+// app/formato.ts
+/** URL de una imagen importada: con Turbopack es un string; con webpack, StaticImageData. */
+export function urlImagen(imagen: string | { src: string }): string {
+  return typeof imagen === "string" ? imagen : imagen.src;
+}
+```
+
+```ts
+// tests/urlImagen.test.ts (vitest)
+import { describe, expect, it } from "vitest";
+import { urlImagen } from "@/app/formato";
+
+describe("urlImagen", () => {
+  it("devuelve el string tal cual (Turbopack con node_modules)", () => {
+    expect(urlImagen("/_next/static/media/logo-fyo-color.0a1b2c.png")).toBe("/_next/static/media/logo-fyo-color.0a1b2c.png");
+  });
+  it("devuelve .src cuando llega como StaticImageData (webpack)", () => {
+    expect(urlImagen({ src: "/_next/static/media/logo.png", width: 77, height: 36 } as { src: string })).toBe("/_next/static/media/logo.png");
+  });
+});
+```
+
+- Como el string no trae medidas, poné `width` y `height` a mano (77 × 36 el del encabezado, 119 × 56 el del login).
+- `next/image` es opcional: el `<img>` común alcanza para logos, que son chicos y no necesitan optimización.
+- Si TypeScript se queja del tipo del import, el helper ya lo cubre: la firma acepta `string` y `{ src: string }`.
 
 ## 1. Encabezado con menú y sección activa
 
@@ -58,14 +91,51 @@ describe("esEnlaceActivo", () => {
 });
 ```
 
+**Helper puro para llevar la sección activa a la vista** en el celular (≤ 600 px el menú es una fila que se desplaza de costado). Calcula el nuevo `scrollLeft` de la fila: `null` si el enlace ya se ve entero; si no, lo centra, sin bajar de 0.
+
+```ts
+// app/navegacion.ts
+/** Nuevo scrollLeft de la fila del menú para ver el enlace entero (centrado), o null si ya se ve. */
+export function desplazamientoParaVer(navScrollLeft: number, navAncho: number, enlaceIzq: number, enlaceAncho: number): number | null {
+  if (enlaceIzq >= navScrollLeft && enlaceIzq + enlaceAncho <= navScrollLeft + navAncho) return null;
+  return Math.max(0, enlaceIzq - (navAncho - enlaceAncho) / 2);
+}
+```
+
+```ts
+// tests/navegacion.test.ts (vitest), junto a las de esEnlaceActivo
+import { desplazamientoParaVer } from "@/app/navegacion";
+
+describe("desplazamientoParaVer", () => {
+  it("null si el enlace ya se ve entero (incluidos los bordes exactos)", () => {
+    expect(desplazamientoParaVer(0, 363, 100, 80)).toBeNull();
+    expect(desplazamientoParaVer(0, 363, 0, 80)).toBeNull();
+    expect(desplazamientoParaVer(0, 363, 283, 80)).toBeNull();
+    expect(desplazamientoParaVer(100, 363, 100, 80)).toBeNull();
+  });
+  it("oculto (total o parcialmente) a la derecha: lo centra", () => {
+    expect(desplazamientoParaVer(0, 363, 400, 98)).toBe(267.5);
+    expect(desplazamientoParaVer(0, 363, 300, 98)).toBe(167.5);
+  });
+  it("oculto a la izquierda: lo centra", () => {
+    expect(desplazamientoParaVer(300, 100, 250, 50)).toBe(225);
+    expect(desplazamientoParaVer(300, 100, 280, 50)).toBe(255);
+  });
+  it("nunca devuelve un valor negativo", () => {
+    expect(desplazamientoParaVer(200, 363, 10, 60)).toBe(0);
+  });
+});
+```
+
 **Menú** (cliente, porque lee la ruta):
 
 ```tsx
 // app/NavPrincipal.tsx
 "use client";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { esEnlaceActivo } from "@/app/navegacion";
+import { desplazamientoParaVer, esEnlaceActivo } from "@/app/navegacion";
 
 const ENLACES = [
   { href: "/", texto: "Tablero" },
@@ -75,8 +145,23 @@ const ENLACES = [
 
 export default function NavPrincipal() {
   const pathname = usePathname() ?? "";
+  const nav = useRef<HTMLElement>(null);
+  const activo = ENLACES.find((e) => esEnlaceActivo(pathname, e.href))?.href ?? null;
+
+  // Solo cuando cambia la sección activa, y desplazando SOLO la fila del menú:
+  // scrollIntoView movería también la ventana y rompería la restauración del scroll en el celular.
+  useEffect(() => {
+    const fila = nav.current;
+    if (!fila || activo === null || fila.scrollWidth <= fila.clientWidth) return;
+    const enlace = fila.querySelector<HTMLElement>('a[aria-current="page"]');
+    if (!enlace) return;
+    const izq = enlace.getBoundingClientRect().left - fila.getBoundingClientRect().left - fila.clientLeft + fila.scrollLeft;
+    const destino = desplazamientoParaVer(fila.scrollLeft, fila.clientWidth, izq, enlace.offsetWidth);
+    if (destino !== null) fila.scrollTo({ left: destino, behavior: "auto" });
+  }, [activo]);
+
   return (
-    <nav aria-label="Principal">
+    <nav aria-label="Principal" ref={nav}>
       {ENLACES.map((e) => (
         <Link key={e.href} href={e.href} aria-current={esEnlaceActivo(pathname, e.href) ? "page" : undefined}>
           {e.texto}
@@ -93,6 +178,7 @@ export default function NavPrincipal() {
 // app/(app)/layout.tsx
 import type { ReactNode } from "react";
 import NavPrincipal from "@/app/NavPrincipal";
+import { urlImagen } from "@/app/formato";
 import logoColor from "fyo-ui/marca/logo-fyo-color.png";
 import logoBlanco from "fyo-ui/marca/logo-fyo-blanco.png";
 
@@ -104,8 +190,8 @@ export default async function LayoutApp({ children }: { children: ReactNode }) {
         <a className="marca" href="/">
           {/* Color en claro, blanco en oscuro: el manual no permite recolorear el logo. */}
           <picture>
-            <source srcSet={logoBlanco.src} media="(prefers-color-scheme: dark)" />
-            <img src={logoColor.src} alt="fyo" width={77} height={36} />
+            <source srcSet={urlImagen(logoBlanco)} media="(prefers-color-scheme: dark)" />
+            <img src={urlImagen(logoColor)} alt="fyo" width={77} height={36} />
           </picture>
           <span className="marca-producto">Presupuesto Infraestructura</span>
         </a>
@@ -121,19 +207,20 @@ export default async function LayoutApp({ children }: { children: ReactNode }) {
 }
 ```
 
-Usa: `.encabezado`, `.marca`, `.marca-producto`, `.sesion`, `.contenido`, `aria-current="page"` (subrayado con `--subrayado-activo`), `button.secundario`. El encabezado pasa la navegación a su propia fila en ≤ 960 px. En ≤ 600 px se oculta `.marca-producto`, el nombre del usuario (el `span` de `.sesion`) queda solo para lectores de pantalla, «Cerrar sesión» sigue en la fila del logo y la navegación es una sola fila que se desplaza de costado (unos 117 px de encabezado en total). Por eso dejá el nombre del usuario en un `span` hijo directo de `.sesion` y el botón aparte. Si la sección activa puede quedar fuera de la vista, llevala con `scrollIntoView({ inline: "nearest" })`. El logo mide `--logo-alto-encabezado` (36 px de alto, 77 px de ancho: mínimo digital de 70 px, manual pág. 14) y `.encabezado`/`.marca` le dejan `--proteccion-logo` (18 px ≈ la «o») libre alrededor (área de protección, pág. 15): no metas nada pegado al logo ni le achiques el padding al encabezado.
+Usa: `.encabezado`, `.marca`, `.marca-producto`, `.sesion`, `.contenido`, `aria-current="page"` (subrayado con `--subrayado-activo`), `button.secundario`. El encabezado pasa la navegación a su propia fila en ≤ 960 px. En ≤ 600 px se oculta `.marca-producto`, el nombre del usuario (el `span` de `.sesion`) queda solo para lectores de pantalla, «Cerrar sesión» sigue en la fila del logo y la navegación es una sola fila que se desplaza de costado (unos 117 px de encabezado en total). Por eso dejá el nombre del usuario en un `span` hijo directo de `.sesion` y el botón aparte. Si la sección activa puede quedar fuera de la vista, `NavPrincipal` la lleva desplazando solo la fila (`desplazamientoParaVer` + `nav.scrollTo`); no uses `scrollIntoView`, que mueve también la página. El logo mide `--logo-alto-encabezado` (36 px de alto, 77 px de ancho: mínimo digital de 70 px, manual pág. 14) y `.encabezado`/`.marca` le dejan `--proteccion-logo` (18 px ≈ la «o») libre alrededor (área de protección, pág. 15): no metas nada pegado al logo ni le achiques el padding al encabezado.
 
 ## 2. Login sobre el fondo de marca
 
 ```tsx
 // app/login/page.tsx
 import logoBlanco from "fyo-ui/marca/logo-fyo-blanco-login.png";
+import { urlImagen } from "@/app/formato";
 import FormularioLogin from "./FormularioLogin";
 
 export default function LoginPage() {
   return (
     <main className="login">
-      <img className="login-logo" src={logoBlanco.src} alt="fyo" width={119} height={56} />
+      <img className="login-logo" src={urlImagen(logoBlanco)} alt="fyo" width={119} height={56} />
       <section className="login-tarjeta" aria-labelledby="titulo-login">
         <h1 id="titulo-login">Presupuesto Infraestructura</h1>
         <p>Ingresá con tu usuario y contraseña.</p>

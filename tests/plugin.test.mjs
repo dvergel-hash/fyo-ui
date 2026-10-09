@@ -173,13 +173,13 @@ test("el marketplace real publica fyo-diseno desde ./plugins/fyo-diseno, con ver
   assert.deepEqual(marketplace.plugins.map((p) => [p.name, p.source]), [["fyo-diseno", "./plugins/fyo-diseno"]]);
   assert.equal(marketplace.plugins[0].version, undefined);
   assert.equal(plugin.name, "fyo-diseno");
-  assert.equal(plugin.version, "1.0.0");
+  assert.equal(plugin.version, "1.0.1");
   assert.equal(plugin.license, "MIT");
 });
 
 test("el patrón del encabezado en patrones-next.md declara el logo con al menos 70 px de ancho (manual, pág. 14)", () => {
   const patrones = readFileSync(join(RAIZ, "plugins/fyo-diseno/skills/fyo-diseno/patrones-next.md"), "utf8");
-  const img = /<img src=\{logoColor\.src\} alt="fyo" width=\{(\d+)\} height=\{(\d+)\} \/>/.exec(patrones);
+  const img = /<img src=\{urlImagen\(logoColor\)\} alt="fyo" width=\{(\d+)\} height=\{(\d+)\} \/>/.exec(patrones);
   assert.ok(img, "no encontré el <img> del logo en el patrón del encabezado");
   assert.ok(Number(img[1]) >= 70, `el logo del encabezado declara width=${img[1]}`);
 });

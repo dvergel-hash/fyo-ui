@@ -1,6 +1,6 @@
 {
   "name": "fyo-diseno",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Diseño con la identidad de fyo: usa el paquete fyo-ui y el manual de marca al crear pantallas, y diagnostica por qué una app se ve genérica.",
   "author": {
     "name": "FYO Infraestructura"

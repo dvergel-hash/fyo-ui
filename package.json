@@ -1,6 +1,6 @@
 {
   "name": "fyo-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Estilos, tokens y recursos de marca de fyo (CSS plano, sin framework).",
   "keywords": [
     "fyo",

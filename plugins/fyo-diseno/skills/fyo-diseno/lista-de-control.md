@@ -59,6 +59,7 @@ Cada casilla se puede verificar mirando el código o la pantalla. Están agrupad
 
 - [ ] El logo es un archivo de `fyo-ui/marca/`, sin recolorear, rotar, distorsionar ni recortar (manual, pág. 19): color en claro, blanco en oscuro y sobre el fondo de marca (pág. 17).
 - [ ] El logo respeta el mínimo digital de 70 px y su área de protección (págs. 14–15).
+- [ ] Los logos importados se resuelven a una URL (no `undefined`) en Turbopack: pasan por `urlImagen(…)` y nunca por `.src` (`rg -n "(logo\w*|favicon)\.src"` no encuentra nada), y en el HTML que sirve la app cada `<img>` del logo tiene un `src` bajo `/_next/static/media/`.
 - [ ] No se agregó el tagline a la app sin que lo pidan (pág. 21: las apps no figuran entre los usos permitidos).
 - [ ] Si hay gráficos, llevan el logo de fyo como marca de agua y usan los colores institucionales (pág. 44).
 
@@ -69,3 +70,4 @@ Cada casilla se puede verificar mirando el código o la pantalla. Están agrupad
 - [ ] Toda animación o transición propia está dentro de `@media (prefers-reduced-motion: no-preference)`.
 - [ ] Cada campo tiene `label`; cada imagen, `alt`; cada tabla desplazable, `tabindex="0"`, `role="region"` y `aria-label`.
 - [ ] La sección activa del menú lleva `aria-current="page"`.
+- [ ] El menú no mueve la página al desplazarse: a 375 px, al entrar a una sección que estaba fuera de la vista, se desplaza solo la fila del menú (`nav.scrollTo` con `desplazamientoParaVer`, sin `scrollIntoView`) y la ventana queda donde estaba.
