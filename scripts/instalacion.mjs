@@ -1,10 +1,12 @@
 // Prueba de instalación: arma un proyecto Next.js mínimo FUERA del repo, instala fyo-ui como lo hará
-// un consumidor, corre `next build` y verifica que salieron el CSS y las fuentes.
-// Uso: node scripts/instalacion.mjs [--origen archive|pack] [--sin-git]
-//   --origen archive  (por defecto) instala `git archive HEAD` con la carpeta fyo-ui-<versión>/, que es
-//                     lo que produce el tarball de etiqueta de GitHub y lo que documenta el README.
-//                     Refleja lo COMMITEADO en HEAD (.gitattributes incluido).
-//   --origen pack     instala el tarball de `npm pack` (aplica el campo "files" de package.json).
+// un consumidor, corre `next build` y verifica que salieron el CSS, las fuentes y los logos (con un
+// `src` de verdad en el HTML prerenderizado: con Turbopack una imagen importada es un string).
+// Uso: node scripts/instalacion.mjs [--origen pack|archive] [--sin-git]
+//   --origen pack     (por defecto) instala el tarball de `npm pack` (aplica el campo "files" de
+//                     package.json): es el asset fyo-ui-<versión>.tgz del Release, lo que documenta el
+//                     README. Refleja el árbol de trabajo.
+//   --origen archive  instala `git archive HEAD` con la carpeta fyo-ui-<versión>/, lo mismo que el
+//                     archivo de etiqueta de GitHub. Refleja lo COMMITEADO en HEAD (.gitattributes incluido).
 //   --sin-git         pone al frente del PATH un `git` de mentira que falla: cualquier intento de usar
 //                     git rompe la instalación, como en las imágenes node:22-slim (el resto del PATH
 //                     queda intacto: sh, coreutils y node siguen andando).
@@ -90,14 +92,64 @@ export function comprobarBuild(staticDir) {
   return problemas;
 }
 
+const ENTIDADES = { "&amp;": "&", "&quot;": '"', "&#x27;": "'", "&#39;": "'", "&lt;": "<", "&gt;": ">" };
+
+/** `src` de cada `<img>` del HTML, en orden (null si la etiqueta no tiene `src`, como cuando React recibe undefined). */
+export function imagenesDeHtml(html) {
+  const salida = [];
+  for (const etiqueta of html.matchAll(/<img\b[^>]*>/gi)) {
+    const m = /\ssrc\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(etiqueta[0]);
+    salida.push(m ? (m[1] ?? m[2]).replace(/&(?:amp|quot|#x27|#39|lt|gt);/g, (e) => ENTIDADES[e]) : null);
+  }
+  return salida;
+}
+
+const PREFIJO_MEDIA = "/_next/static/media/";
+
+/**
+ * Revisa los `<img>` del HTML prerenderizado: al menos `minimo`, y cada uno con `src` no vacío, sin "undefined",
+ * bajo /_next/static/media/, terminado en .png y con el archivo presente en `staticDir`/media. Devuelve los problemas.
+ */
+export function comprobarImagenes(html, staticDir, minimo) {
+  const problemas = [];
+  const srcs = imagenesDeHtml(html);
+  if (srcs.length < minimo) problemas.push(`se esperaban ${minimo} <img> en la página y hay ${srcs.length}`);
+  srcs.forEach((src, i) => {
+    const quien = `<img> ${i + 1}`;
+    if (src === null) {
+      problemas.push(`${quien} salió sin src (¿se leyó .src de una imagen que el empaquetador importa como string?)`);
+    } else if (src.trim() === "") {
+      problemas.push(`${quien}: src vacío`);
+    } else if (src.includes("undefined")) {
+      problemas.push(`${quien}: src "${src}" contiene undefined`);
+    } else {
+      const ruta = src.split(/[?#]/)[0];
+      if (!ruta.startsWith(PREFIJO_MEDIA)) problemas.push(`${quien}: src "${src}" no está bajo ${PREFIJO_MEDIA}`);
+      else if (!ruta.endsWith(".png")) problemas.push(`${quien}: src "${src}" no termina en .png`);
+      else if (!existsSync(join(staticDir, "media", ...decodeURIComponent(ruta.slice(PREFIJO_MEDIA.length)).split("/")))) {
+        problemas.push(`${quien}: ${src} no existe en .next/static/media`);
+      }
+    }
+  });
+  return problemas;
+}
+
 // ---------------------------------------------------------------------------------------------
+
+// El helper que documentan el README y patrones-next.md (acá en JS: el proyecto de prueba no usa TypeScript).
+const FORMATO = `/** URL de una imagen importada: con Turbopack es un string; con webpack, StaticImageData. */
+export function urlImagen(imagen) {
+  return typeof imagen === "string" ? imagen : imagen.src;
+}
+`;
 
 const PAGINA_LAYOUT = `import "fyo-ui/css/fyo.css";
 import favicon from "fyo-ui/marca/favicon.ico";
+import { urlImagen } from "./formato";
 
 export const metadata = {
   title: "Consumidor de fyo-ui",
-  icons: { icon: favicon.src },
+  icons: { icon: urlImagen(favicon) },
 };
 
 export default function RootLayout({ children }) {
@@ -109,13 +161,18 @@ export default function RootLayout({ children }) {
 }
 `;
 
-const PAGINA_INICIO = `import logo from "fyo-ui/marca/logo-fyo-color.png";
+// Los dos logos con el helper: si alguno sale sin `src` (o con "undefined"), la prueba falla.
+const IMAGENES_EN_PAGINA = 2;
+const PAGINA_INICIO = `import logoColor from "fyo-ui/marca/logo-fyo-color.png";
+import logoBlanco from "fyo-ui/marca/logo-fyo-blanco.png";
+import { urlImagen } from "./formato";
 
 export default function Inicio() {
   return (
     <main className="contenido">
       <h1>Hola desde un proyecto que usa fyo-ui</h1>
-      <img src={logo.src} width={logo.width} height={logo.height} alt="fyo" />
+      <img src={urlImagen(logoColor)} width={77} height={36} alt="fyo" />
+      <img src={urlImagen(logoBlanco)} width={77} height={36} alt="fyo" />
       <p className="leyenda">Si ves Poppins y el celeste de fyo, el paquete anda.</p>
     </main>
   );
@@ -138,9 +195,10 @@ function correr(titulo, comando, args, { cwd, env }) {
   if (r.status !== 0) throw new Error(`${titulo}: terminó con código ${r.status}`);
 }
 
-function leerOrigen(argv) {
+/** Valor de --origen en `argv`: "pack" (por defecto, el asset del Release) o "archive". */
+export function leerOrigen(argv) {
   const i = argv.findIndex((a) => a === "--origen" || a.startsWith("--origen="));
-  if (i < 0) return "archive";
+  if (i < 0) return "pack";
   const valor = argv[i].includes("=") ? argv[i].split("=")[1] : argv[i + 1];
   if (valor !== "archive" && valor !== "pack") {
     throw new Error(`--origen debe ser "archive" o "pack" (se recibió ${JSON.stringify(valor)})`);
@@ -202,6 +260,7 @@ function ejecutar() {
     writeFileSync(join(proyecto, "package.json"), JSON.stringify({ name: "consumidor-fyo-ui", version: "0.0.0", private: true }, null, 2));
     writeFileSync(join(proyecto, "app", "layout.js"), PAGINA_LAYOUT);
     writeFileSync(join(proyecto, "app", "page.js"), PAGINA_INICIO);
+    writeFileSync(join(proyecto, "app", "formato.js"), FORMATO);
 
     // 3. Entorno de la instalación Y del build (el mismo): con --sin-git, un `git` que falla va al frente del PATH.
     const env = { ...process.env, NEXT_TELEMETRY_DISABLED: "1" };
@@ -238,11 +297,24 @@ function ejecutar() {
     correr("next build", process.execPath, [join(proyecto, "node_modules", "next", "dist", "bin", "next"), "build"], { cwd: proyecto, env });
 
     // 6. Verificar la salida.
-    const problemas = comprobarBuild(join(proyecto, ".next", "static"));
+    const dirStatic = join(proyecto, ".next", "static");
+    const problemas = comprobarBuild(dirStatic);
+    // La página es estática: `next build` la prerenderiza y ahí se ve el `src` real de cada logo.
+    const html = join(proyecto, ".next", "server", "app", "index.html");
+    if (!existsSync(html)) {
+      problemas.push("no está .next/server/app/index.html: la página no se prerenderizó");
+    } else {
+      const contenido = readFileSync(html, "utf8");
+      console.log(`  <img src> en index.html: ${imagenesDeHtml(contenido).map((s) => s ?? "(sin src)").join(", ")}`);
+      problemas.push(...comprobarImagenes(contenido, dirStatic, IMAGENES_EN_PAGINA));
+    }
     if (problemas.length) throw new Error("el build no trae lo esperado:\n  - " + problemas.join("\n  - "));
 
     const segundos = Math.round((Date.now() - inicio) / 1000);
-    console.log(`\nInstalación verificada en ${segundos} s: CSS con --celeste, tres woff2 de Poppins y el logo salieron en .next/static.`);
+    console.log(
+      `\nInstalación verificada en ${segundos} s: CSS con --celeste, tres woff2 de Poppins y los dos logos ` +
+        `(src bajo ${PREFIJO_MEDIA}, con el png en .next/static/media) salieron en el build.`,
+    );
   } catch (e) {
     fallar(e.message);
   } finally {

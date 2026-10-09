@@ -34,9 +34,10 @@ jobs:
       - name: Empaquetar
         run: |
           version="${GITHUB_REF_NAME#v}"
-          # Lo mismo que el tarball de etiqueta de GitHub, que es lo que instalan las apps.
+          # Lo mismo que el archivo de etiqueta de GitHub (se adjunta como referencia; no es lo que se instala).
           git archive --format=tar.gz --prefix="fyo-ui-${version}/" -o "fyo-ui-${version}.tar.gz" HEAD
-          # Tarball de npm, solo con lo que declara "files" de package.json.
+          # Tarball de npm (solo lo que declara "files"): fyo-ui-X.Y.Z.tgz es lo que instalan las apps,
+          # desde .../releases/download/vX.Y.Z/fyo-ui-X.Y.Z.tgz (bytes estables, a diferencia del archivo de etiqueta).
           npm pack
       - name: Crear el Release
         env:
