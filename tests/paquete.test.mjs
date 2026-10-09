@@ -53,9 +53,9 @@ test("el tarball pesa menos de 400 KB", () => {
   assert.ok(empaque.size < 400 * 1024, `el tarball pesa ${empaque.size} bytes`);
 });
 
-test("package.json: versión 1.0.0 y metadatos del paquete", () => {
+test("package.json: versión 1.0.1 y metadatos del paquete", () => {
   assert.equal(pkg.name, "fyo-ui");
-  assert.equal(pkg.version, "1.0.0");
+  assert.equal(pkg.version, "1.0.1");
   assert.equal(pkg.license, "MIT");
   assert.equal(pkg.type, "module");
   assert.equal(pkg.private, false);
@@ -100,8 +100,9 @@ test("package.json: scripts de verificación (la instalación queda aparte)", ()
   assert.ok(!v.includes("instalacion"), "verificar no corre la instalación (solo CI)");
 });
 
-test("CHANGELOG: tiene la entrada 1.0.0 con fecha", () => {
+test("CHANGELOG: tiene las entradas 1.0.1 y 1.0.0 con fecha", () => {
   const cl = readFileSync(join(RAIZ, "CHANGELOG.md"), "utf8");
+  assert.match(cl, /^## \[1\.0\.1\] - 2026-10-10$/m);
   assert.match(cl, /^## \[1\.0\.0\] - 2026-10-09$/m);
 });
 

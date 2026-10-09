@@ -22,7 +22,7 @@ Primero ubicá el CSS de la app (`globals.css`, `*.module.css`, Tailwind en `cla
 - **Radios y sombras**: `rg -o --no-filename "(border-radius|box-shadow):\s*[^;]+" | sort | uniq -c`.
 - **Estados**: `rg --files -g "loading.tsx" -g "error.tsx" -g "not-found.tsx"`; si no hay ninguno, es un problema seguro. Buscá también listas sin rama vacía (`.map(` sin un `length === 0` cerca) y botones de envío sin `disabled` mientras está pendiente.
 - **Textos**: buscá inglés y relleno: `rg -n "Loading|Submit|Dashboard|Welcome|Lorem|Oops|Ups"`; verbos genéricos en botones («Aceptar», «OK», «Enviar»).
-- **Marca**: ¿importa `fyo-ui/css/fyo.css`? ¿la fuente es Poppins? ¿el logo sale de `fyo-ui/marca/` y sin `filter`/`opacity`/recoloreo? ¿el celeste `#008eaa` se usa como color de texto o de botón con texto blanco?
+- **Marca**: ¿importa `fyo-ui/css/fyo.css`? ¿la fuente es Poppins? ¿el logo sale de `fyo-ui/marca/` y sin `filter`/`opacity`/recoloreo? ¿lee `.src` de una imagen importada (`rg -n "(logo\w*|favicon)\.src"`; con Turbopack da `undefined`: va `urlImagen(…)`)? ¿el menú usa `scrollIntoView` (mueve la página)? ¿el celeste `#008eaa` se usa como color de texto o de botón con texto blanco?
 - **La pantalla**: si podés abrir la app, mirala a 1280 px y 375 px, en claro y oscuro, con datos reales; si no, decí que el diagnóstico es solo por código.
 
 ## El diagnóstico: 7 puntos

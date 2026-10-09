@@ -12,23 +12,27 @@ Para ver todo junto, abrí `demo/index.html` en un navegador (está en el reposi
 
 ## Instalación
 
-fyo-ui **no se publica en npm**: se instala desde un tarball de una etiqueta del repositorio. En el `package.json` de tu app:
+fyo-ui **no se publica en npm**: se instala desde el tarball adjunto (asset) a cada Release del repositorio. En el `package.json` de tu app:
 
 ```json
 {
   "dependencies": {
-    "fyo-ui": "https://github.com/dvergel-hash/fyo-ui/archive/refs/tags/v1.0.0.tar.gz"
+    "fyo-ui": "https://github.com/dvergel-hash/fyo-ui/releases/download/v1.0.1/fyo-ui-1.0.1.tgz"
   }
 }
 ```
 
-Esa URL (el archivo de etiqueta que genera GitHub) es la forma documentada de instalar. Trae **solo los archivos del paquete** (`css/`, `fonts/`, `marca/`, `README.md`, `CHANGELOG.md`, `LICENSE` y `package.json`): el repositorio marca con `export-ignore` en `.gitattributes` la demo, los scripts, las pruebas y los docs, porque npm no aplica el campo `files` a un archivo de etiqueta.
+La forma general es `https://github.com/dvergel-hash/fyo-ui/releases/download/vX.Y.Z/fyo-ui-X.Y.Z.tgz`. Ese archivo es el que arma `npm pack` al publicar el Release: trae **solo los archivos del paquete** (`css/`, `fonts/`, `marca/`, `README.md`, `CHANGELOG.md`, `LICENSE` y `package.json`) dentro de la carpeta `package/`, como cualquier paquete de npm.
 
-Después, `npm install`. Para actualizar, cambiá el número de la etiqueta (`v1.0.0` → `v1.1.0`) y volvé a instalar.
+Después, `npm install`. Para actualizar, cambiá la versión en los dos lugares de la URL (`v1.0.1/fyo-ui-1.0.1.tgz` → `v1.1.0/fyo-ui-1.1.0.tgz`) y volvé a instalar.
 
-### Por qué un tarball y no `github:dvergel-hash/fyo-ui`
+**Red del build.** La instalación tiene que llegar a `github.com` (responde con una redirección 302) y a `release-assets.githubusercontent.com` (donde está el archivo), además de `registry.npmjs.org` para el resto de las dependencias. Si construís detrás de un proxy o con una lista de hosts permitidos, habilitá los tres.
 
-La forma `github:usuario/repo` (o `git+https://…`) hace que npm llame a `git`. Las imágenes `node:22-slim` con las que construimos las apps **no traen `git`**, y la instalación falla. El tarball de una etiqueta es un archivo HTTPS común: npm lo baja y lo descomprime, sin `git` ni credenciales. Además queda fijado a una versión exacta.
+### Por qué el asset del Release y no `github:` ni el archivo de etiqueta
+
+- **Sin `git`.** La forma `github:usuario/repo` (o `git+https://…`) hace que npm llame a `git`. Las imágenes `node:22-slim` con las que construimos las apps **no traen `git`**, y la instalación falla. El asset es un archivo HTTPS común: npm lo baja y lo descomprime, sin `git` ni credenciales.
+- **Bytes estables.** El archivo de etiqueta que GitHub arma al vuelo (`…/archive/…/vX.Y.Z.tar.gz`) no garantiza que sus bytes sean siempre los mismos: si GitHub lo regenera, cambia el hash y la instalación falla con un error de integridad (`EINTEGRITY`) contra el `package-lock.json`. El asset es un archivo que se sube una sola vez y no cambia.
+- **Versión exacta.** Queda fijado a una versión y el lockfile guarda su hash.
 
 Requisitos: Node 22 o superior. El paquete no tiene dependencias.
 
@@ -51,22 +55,36 @@ export default function RootLayout({ children }) {
 }
 ```
 
-```jsx
-// En cualquier componente: los logos se importan como imágenes.
-import logo from "fyo-ui/marca/logo-fyo-color.png";
+Los logos se importan como imágenes, pero **no leas `.src` directamente**: con Turbopack (el empaquetador por defecto de Next 16) una imagen importada desde `node_modules` llega como la URL (un `string`), no como `StaticImageData`, y leer `.src` da `undefined`: el `<img>` sale sin `src` y ni `tsc` ni `next build` lo detectan. Usá un helper que acepte las dos formas:
 
-<img src={logo.src} width={logo.width} height={logo.height} alt="fyo" />
+```ts
+// app/formato.ts
+/** URL de una imagen importada: con Turbopack es un string; con webpack, StaticImageData. */
+export function urlImagen(imagen: string | { src: string }): string {
+  return typeof imagen === "string" ? imagen : imagen.src;
+}
 ```
+
+```jsx
+// En cualquier componente.
+import logoColor from "fyo-ui/marca/logo-fyo-color.png";
+import { urlImagen } from "@/app/formato";
+
+<img src={urlImagen(logoColor)} width={77} height={36} alt="fyo" />
+```
+
+Poné el ancho y el alto a mano (77 × 36 px es el tamaño del logo en `.encabezado`): con Turbopack la importación no trae `width` ni `height`. `next/image` es opcional; el `<img>` común alcanza.
 
 Next copia las fuentes (`fonts/`) y las imágenes al build y reescribe las rutas del CSS. No hace falta `transpilePackages` ni ninguna configuración extra en `next.config`.
 
-**Favicon.** Importalo y pasalo en `metadata`:
+**Favicon.** Importalo y pasalo en `metadata`, también con `urlImagen`:
 
 ```jsx
 // app/layout.js
 import favicon from "fyo-ui/marca/favicon.ico";
+import { urlImagen } from "@/app/formato";
 
-export const metadata = { icons: { icon: favicon.src } };
+export const metadata = { icons: { icon: urlImagen(favicon) } };
 ```
 
 Si preferís la convención de Next, copiá `node_modules/fyo-ui/marca/favicon.ico` a `app/favicon.ico`.
@@ -279,7 +297,7 @@ Cada componente es una clase (en español). El marcado de abajo es el mínimo qu
 <main class="contenido">…</main>
 ```
 
-- `.encabezado`: barra superior (marca, navegación, sesión). En pantallas de hasta 960 px la navegación pasa a su propia fila; hasta 600 px queda en **una sola fila que se desplaza de costado** (sin barra visible, enlaces de 36 px de alto) y el encabezado mide unos 117 px. Deja `--proteccion-logo` libre arriba, a la izquierda y entre filas (área de protección del logo, manual de marca pág. 15); como la navegación queda debajo, el borde inferior baja a `--espacio-2` hasta 960 px. Si la sección activa puede quedar fuera de la vista en el celular, tu app puede llevarla a la vista con `scrollIntoView({ inline: "nearest" })`.
+- `.encabezado`: barra superior (marca, navegación, sesión). En pantallas de hasta 960 px la navegación pasa a su propia fila; hasta 600 px queda en **una sola fila que se desplaza de costado** (sin barra visible, enlaces de 36 px de alto) y el encabezado mide unos 117 px. Deja `--proteccion-logo` libre arriba, a la izquierda y entre filas (área de protección del logo, manual de marca pág. 15); como la navegación queda debajo, el borde inferior baja a `--espacio-2` hasta 960 px. Si la sección activa puede quedar fuera de la vista en el celular, tu app puede desplazar **solo la fila del menú** (`nav.scrollTo({ left })`) con un helper como `desplazamientoParaVer` (código y pruebas en el patrón del encabezado de la skill `fyo-diseno`, `plugins/fyo-diseno/skills/fyo-diseno/patrones-next.md`). No uses `scrollIntoView`: además de la fila desplaza la ventana, y en el celular rompe la restauración del scroll al navegar.
 - `.marca`: contenedor del logo (puede ser un enlace); el logo mide `--logo-alto-encabezado` de alto y queda a `--proteccion-logo` del nombre del producto. En modo oscuro usá el logo blanco (`logo-fyo-blanco.png`); con HTML plano alcanza un `<picture>` con `media="(prefers-color-scheme: dark)"`.
 - `.marca-producto`: nombre del producto al lado del logo. Se oculta hasta 600 px, para que logo y sesión entren en una fila.
 - `.sesion`: usuario y botón de salir. Hasta 600 px el texto del usuario (el `span` hijo) queda solo para lectores de pantalla y el botón sigue visible.
@@ -422,7 +440,7 @@ fyo-ui sigue [versionado semántico](https://semver.org/lang/es/). La API públi
 | Renombrar o quitar un token o una clase | mayor (`2.0.0`) |
 | Cambiar lo que significa un token o una clase | mayor (`2.0.0`) |
 
-Cada cambio queda en [`CHANGELOG.md`](CHANGELOG.md). Fijá siempre la etiqueta exacta en tu `package.json` (`v1.0.0`) y actualizala a propósito.
+Cada cambio queda en [`CHANGELOG.md`](CHANGELOG.md). Fijá siempre la versión exacta en la URL de tu `package.json` (`v1.0.1/fyo-ui-1.0.1.tgz`) y actualizala a propósito.
 
 ## Accesibilidad
 
@@ -447,7 +465,7 @@ npm run verificar:instalacion     # instala el tarball en un proyecto Next y lo 
 
 `npm run verificar` corre, en orden: las pruebas (`npm test`), el contraste de los tokens, las variables y los `@import` del CSS, la demo en Chromium (1280 y 375 px, claro y oscuro), que el README documente todos los tokens y clases (`node scripts/readme.mjs`) y que el marketplace y el plugin de Claude Code sean válidos (`node scripts/plugin.mjs`).
 
-`npm run verificar:instalacion` es la prueba de punta a punta: genera el mismo archivo que GitHub arma para una etiqueta (`git archive HEAD`, o sea lo **commiteado**), arma un proyecto Next.js **fuera del repo**, instala `next`, `react`, `react-dom` y ese archivo, comprueba que `node_modules/fyo-ui` tenga solo los archivos del paquete, corre `next build` y comprueba que salieron el CSS (con `--celeste`) y las tres fuentes. Tarda varios minutos y baja paquetes, por eso la corre el CI y no el `verificar` diario. Con `npm run verificar:instalacion -- --sin-git` pone al frente del `PATH` un `git` que falla (instalación y build), como si no existiera, igual que en `node:22-slim`. Con `-- --origen pack` instala el tarball de `npm pack` en lugar del archivo de git.
+`npm run verificar:instalacion` es la prueba de punta a punta: genera con `npm pack` el mismo tarball que se adjunta al Release (`fyo-ui-X.Y.Z.tgz`, a partir del árbol de trabajo), arma un proyecto Next.js **fuera del repo**, instala `next`, `react`, `react-dom` y ese tarball, comprueba que `node_modules/fyo-ui` tenga solo los archivos del paquete y corre `next build` (con Turbopack, el empaquetador por defecto). Después comprueba que salieron el CSS (con `--celeste`) y las tres fuentes, y que en la página prerenderizada (`.next/server/app/index.html`) los dos logos, importados de `fyo-ui/marca/` y pasados por `urlImagen`, tengan un `src` real: no vacío, sin `undefined`, bajo `/_next/static/media/`, terminado en `.png` y con el archivo en `.next/static/media/`. Tarda varios minutos y baja paquetes, por eso la corre el CI y no el `verificar` diario. Con `npm run verificar:instalacion -- --sin-git` pone al frente del `PATH` un `git` que falla (instalación y build), como si no existiera, igual que en `node:22-slim`. Con `-- --origen archive` instala `git archive HEAD` (lo **commiteado**, como el archivo de etiqueta de GitHub) en lugar del tarball de `npm pack`.
 
 ## Plugin de Claude Code
 
