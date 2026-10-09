@@ -1,0 +1,8 @@
+node_modules/
+*.tgz
+.superpowers/
+.playwright-cache/
+demo-salida/
+
+# Documentación de diseño interna (spec y plan): no se publica.
+/docs/

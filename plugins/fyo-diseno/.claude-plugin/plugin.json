@@ -1,0 +1,12 @@
+{
+  "name": "fyo-diseno",
+  "version": "1.0.0",
+  "description": "Diseño con la identidad de fyo: usa el paquete fyo-ui y el manual de marca al crear pantallas, y diagnostica por qué una app se ve genérica.",
+  "author": {
+    "name": "FYO Infraestructura"
+  },
+  "homepage": "https://github.com/dvergel-hash/fyo-ui#readme",
+  "repository": "https://github.com/dvergel-hash/fyo-ui",
+  "license": "MIT",
+  "keywords": ["fyo", "diseño", "marca", "design-system", "fyo-ui", "nextjs", "accesibilidad"]
+}

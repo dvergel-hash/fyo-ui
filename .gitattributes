@@ -1,0 +1,18 @@
+# `git archive` (y por lo tanto el tarball de etiqueta de GitHub, que es lo que instalan las apps)
+# no aplica el campo "files" de package.json: acá se deja afuera todo lo que no es del paquete.
+# El plugin y el marketplace se instalan con git clone, no con este archivo.
+/demo/ export-ignore
+/docs/ export-ignore
+/scripts/ export-ignore
+/tests/ export-ignore
+/plugins/ export-ignore
+/.claude-plugin/ export-ignore
+/.github/ export-ignore
+/package-lock.json export-ignore
+/playwright.config.mjs export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+
+# Los workflows se leen como texto en las pruebas: siempre con LF, también en Windows.
+*.yml text eol=lf
+*.yaml text eol=lf

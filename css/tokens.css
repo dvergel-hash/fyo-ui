@@ -1,0 +1,123 @@
+/* ==========================================================================
+   fyo-ui · tokens de diseño (marca fyo).
+   Un único bloque :root; el modo oscuro sólo redefine tokens dentro de
+   @media (prefers-color-scheme: dark). Rutas de fuentes relativas a css/.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/poppins-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/poppins-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/poppins-latin-600-normal.woff2") format("woff2");
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Marca */
+  --celeste: #008eaa;            /* «Celeste fyo» (manual de marca) */
+  --gris-marca: #97999b;         /* gris secundario de la marca (decorativo: no usar para texto) */
+  --fondo-marca: #0d4552;        /* color base bajo el degradé de marca (login) */
+  --velo: rgba(4, 22, 27, 0.66); /* fondo detrás de los modales */
+
+  /* Superficies y texto (neutros levemente teñidos hacia el celeste) */
+  --fondo: #f4f7f8;
+  --superficie: #ffffff;
+  --cabecera-tabla: #eaf1f3;
+  --resalte: #edf7f9;
+  --texto: #15252b;
+  --tenue: #52646c;
+  --borde: #d5dfe3;
+  --borde-control: #7b8f97;      /* bordes de inputs: ≥ 3:1 contra la superficie */
+
+  /* Acento interactivo (botones, enlaces, foco) derivado del celeste */
+  --acento: #007a94;
+  --acento-hover: #006a80;
+  --sobre-acento: #ffffff;       /* texto sobre un botón primario */
+  --subrayado-activo: var(--celeste); /* marca de la sección activa en la navegación */
+
+  /* Estados */
+  --error: #b3261e;
+  --ok: #1b7a3a;
+  --rojo-fondo: #fde8e6; --rojo-texto: #8a1710; --rojo-borde: #b3261e;
+  --amarillo-fondo: #fff3cd; --amarillo-texto: #5c4400; --amarillo-borde: #9a6b00;
+  --verde-fondo: #e1f3e6; --verde-texto: #0f5a28; --verde-borde: #1b7a3a;
+  --gris-fondo: #e8eaee; --gris-texto: #3b4350;
+
+  /* Tipografía: Poppins (los @font-face de arriba) */
+  --fuente: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --texto-xs: 0.75rem;   /* insignias, notas */
+  --texto-sm: 0.875rem;  /* tablas, etiquetas, ayudas */
+  --texto-md: 1rem;      /* cuerpo */
+  --texto-lg: 1.25rem;   /* h2, importes de tarjetas */
+  --texto-xl: 1.75rem;   /* h1 */
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-fuerte: 600;
+  --interlineado: 1.5;
+  --interlineado-titulo: 1.25;
+
+  /* Espaciado */
+  --espacio-1: 4px;
+  --espacio-2: 8px;
+  --espacio-3: 12px;
+  --espacio-4: 16px;
+  --espacio-5: 24px;
+  --espacio-6: 32px;
+
+  /* Radios */
+  --radio-sm: 4px;    /* inputs, botones */
+  --radio-md: 8px;    /* tarjetas, paneles, tablas, avisos, visor */
+  --radio-pill: 999px; /* insignias */
+
+  /* Controles: misma altura para inputs, selects y botones */
+  --alto-control: 36px;
+
+  /* Logo del encabezado (manual de marca, págs. 14–15) */
+  --logo-alto-encabezado: 36px; /* ≈ 76,5 px de ancho: el mínimo digital es 70 px */
+  --proteccion-logo: calc(var(--logo-alto-encabezado) * 0.5); /* ≈ la «o» del logotipo: 28 de 119 columnas */
+
+  --sombra-tarjeta: 0 1px 2px rgba(13, 69, 82, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo-marca: #062f38;
+    --velo: rgba(0, 8, 10, 0.72);
+    /* Superficies en la familia del teal profundo de la marca */
+    --fondo: #0b1a1f;
+    --superficie: #11252c;
+    --cabecera-tabla: #17323a;
+    --resalte: #123f4a;
+    --texto: #e3eef1;
+    --tenue: #9bb3ba;
+    --borde: #24414a;
+    --borde-control: #5e8692;
+    --acento: #00c1d4;
+    --acento-hover: #5fd8e4;
+    --sobre-acento: #03222a;
+    --subrayado-activo: var(--acento);
+    --error: #ff9b94;
+    --ok: #9be2b0;
+    --rojo-fondo: #4a1a17; --rojo-texto: #ffb4ae; --rojo-borde: #ff9b94;
+    --amarillo-fondo: #3f3200; --amarillo-texto: #ffd970; --amarillo-borde: #d9a400;
+    --verde-fondo: #14391f; --verde-texto: #9be2b0; --verde-borde: #4fbf72;
+    --gris-fondo: #2a313d; --gris-texto: #c9d0db;
+    --sombra-tarjeta: none;
+  }
+}

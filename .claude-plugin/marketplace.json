@@ -1,0 +1,16 @@
+{
+  "name": "fyo-plugins",
+  "owner": {
+    "name": "FYO Infraestructura"
+  },
+  "description": "Plugins de Claude Code de FYO: identidad de marca y diseño de interfaces para las apps internas.",
+  "plugins": [
+    {
+      "name": "fyo-diseno",
+      "source": "./plugins/fyo-diseno",
+      "description": "Aplica la identidad de marca de fyo (fyo-ui, manual de marca) al crear interfaces y diagnostica el diseño de apps existentes.",
+      "category": "design",
+      "tags": ["fyo", "diseño", "marca", "ui", "css"]
+    }
+  ]
+}

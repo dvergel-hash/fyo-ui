@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fyo-ui · catálogo de componentes</title>
+  <link rel="icon" href="../marca/favicon.ico">
+  <link rel="stylesheet" href="../css/fyo.css">
+  <style>
+    /* Estilos sólo de la demo (no son parte del paquete). */
+    .demo-seccion { margin: 0 0 var(--espacio-6); }
+    .demo-seccion > h2.seccion:first-child { margin-top: 0; padding-bottom: var(--espacio-2); border-bottom: 1px solid var(--borde); }
+    .demo-intro { max-width: 68ch; color: var(--tenue); margin: 0 0 var(--espacio-6); }
+    .demo-marco-login { border-radius: var(--radio-md); overflow: hidden; }
+    .demo-marco-login .login { min-height: 0; }
+    .demo-fila { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2) var(--espacio-3); }
+    .demo-paleta { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--espacio-3); }
+    .demo-paleta li { border: 1px solid var(--borde); border-radius: var(--radio-md); overflow: hidden; background: var(--superficie); }
+    .demo-muestra { height: 48px; border-bottom: 1px solid var(--borde); }
+    .demo-paleta code { display: block; font-family: ui-monospace, Consolas, "Cascadia Mono", monospace; padding: var(--espacio-2) var(--espacio-3); font-size: var(--texto-xs); color: var(--texto); }
+  </style>
+</head>
+<body>
+  <header class="encabezado" id="encabezado">
+    <div class="marca">
+      <picture>
+        <source srcset="../marca/logo-fyo-blanco.png" media="(prefers-color-scheme: dark)">
+        <img src="../marca/logo-fyo-color.png" alt="fyo" width="77" height="36">
+      </picture>
+      <span class="marca-producto">Presupuesto Infraestructura</span>
+    </div>
+    <nav aria-label="Principal">
+      <a href="#tarjetas" aria-current="page">Tablero</a>
+      <a href="#tabla">Compras</a>
+      <a href="#formularios">Presupuesto</a>
+      <a href="#avisos-alertas">Desvíos</a>
+      <a href="#paneles">Configuración</a>
+    </nav>
+    <div class="sesion">
+      <span>mgarcia (editor)</span>
+      <button type="button" class="secundario">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="contenido">
+    <h1>Catálogo de componentes</h1>
+    <p class="demo-intro">Todo lo que trae fyo-ui, con contenido real. El tema claro u oscuro sigue la configuración de tu sistema.</p>
+
+    <section class="demo-seccion" id="login" aria-labelledby="titulo-seccion-login">
+      <h2 class="seccion" id="titulo-seccion-login">Login</h2>
+      <div class="demo-marco-login">
+        <div class="login">
+          <img class="login-logo" src="../marca/logo-fyo-blanco-login.png" alt="fyo" width="119" height="56">
+          <section class="login-tarjeta" aria-labelledby="titulo-login">
+            <h1 id="titulo-login">Presupuesto Infraestructura</h1>
+            <p>Ingresá con tu usuario y contraseña.</p>
+            <form class="formulario-login" onsubmit="return false">
+              <label>
+                Usuario
+                <input name="usuario" type="text" autocomplete="off" value="mgarcia">
+              </label>
+              <label>
+                Contraseña
+                <input name="contrasena" type="password" autocomplete="off">
+              </label>
+              <p role="alert" class="error">Usuario o contraseña incorrectos.</p>
+              <button type="submit">Ingresar</button>
+            </form>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-seccion" id="tarjetas" aria-labelledby="titulo-tarjetas">
+      <h2 class="seccion" id="titulo-tarjetas">Tablero de marzo</h2>
+      <form class="selector-mes" onsubmit="return false">
+        <label>
+          Mes
+          <select name="mes">
+            <option>enero</option>
+            <option>febrero</option>
+            <option selected>marzo</option>
+            <option>abril</option>
+          </select>
+        </label>
+        <button type="submit" class="secundario">Ver</button>
+      </form>
+      <div class="tarjetas" role="group" aria-label="Resumen del mes">
+        <article class="tarjeta">
+          <h2>Presupuestado</h2>
+          <div class="monto">$ 184.250.000,00</div>
+          <div class="monto-usd">US$ 171.395,35</div>
+        </article>
+        <article class="tarjeta">
+          <h2>Aprovisionado</h2>
+          <div class="monto">$ 96.480.312,50</div>
+          <div class="monto-usd">US$ 89.749,13</div>
+        </article>
+        <article class="tarjeta">
+          <h2>Ejecutado</h2>
+          <div class="monto">$ 123.456.789.012,34</div>
+          <div class="monto-usd">US$ 114.843.524,66</div>
+        </article>
+        <article class="tarjeta excedido">
+          <h2>Disponible</h2>
+          <div class="monto">-$ 123.368.019.324,84</div>
+          <div class="monto-usd">-US$ 114.760.948,21</div>
+          <p class="nota">Presupuesto excedido</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="demo-seccion" id="avisos-alertas" aria-labelledby="titulo-alertas">
+      <h2 class="seccion" id="titulo-alertas">Avisos y alertas</h2>
+      <p class="aviso" role="note">
+        No hay tipo de cambio cargado para marzo: no se puede mostrar el equivalente en USD.
+        <a href="#paneles">Cargarlo en Configuración</a>
+      </p>
+      <ul class="lista-alertas">
+        <li class="alerta nivel-ROJO">
+          <span class="insignia nivel-ROJO">ROJO</span>
+          <span class="mensaje">Renovación de licencias de backup en red supera lo presupuestado en un 32,4&nbsp;%.</span>
+          <span class="tipo">Desvío de monto</span>
+        </li>
+        <li class="alerta nivel-AMARILLO">
+          <span class="insignia nivel-AMARILLO">AMARILLO</span>
+          <span class="mensaje">Quedan 3 compras programadas para marzo sin ejecutar.</span>
+          <span class="tipo">Compra pendiente</span>
+        </li>
+        <li class="alerta nivel-VERDE">
+          <span class="insignia nivel-VERDE">VERDE</span>
+          <span class="mensaje">El tipo de cambio de marzo está al día.</span>
+          <span class="tipo">Tipo de cambio</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="demo-seccion" id="insignias" aria-labelledby="titulo-insignias">
+      <h2 class="seccion" id="titulo-insignias">Insignias</h2>
+      <p class="leyenda">Tres niveles: rojo, amarillo y verde. El texto siempre acompaña al color.</p>
+      <div class="demo-fila">
+        <span class="insignia nivel-ROJO">ROJO</span>
+        <span class="insignia nivel-AMARILLO">AMARILLO</span>
+        <span class="insignia nivel-VERDE">VERDE</span>
+      </div>
+    </section>
+
+    <section class="demo-seccion" id="tabla" aria-labelledby="titulo-tabla">
+      <h2 class="seccion" id="titulo-tabla">Tabla densa</h2>
+      <p class="leyenda">Si no entra, la tabla se desplaza dentro de su contenedor; la página no.</p>
+      <div class="tabla-contenedor" tabindex="0" role="region" aria-label="Compras del mes">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Concepto</th>
+              <th scope="col">Sociedad</th>
+              <th scope="col">Moneda</th>
+              <th scope="col" class="num">Presupuestado</th>
+              <th scope="col" class="num">Real</th>
+              <th scope="col" class="num">Diferencia</th>
+              <th scope="col">Nivel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Renovación de licencias de backup en red</th>
+              <td>fyo S.A.</td>
+              <td>ARS</td>
+              <td class="num">$ 123.456.789.012,34</td>
+              <td class="num">$ 163.456.789.012,34</td>
+              <td class="num">$ 40.000.000.000,00</td>
+              <td><span class="insignia nivel-ROJO">ROJO</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Mantenimiento de enlaces de fibra</th>
+              <td>fyo Digital</td>
+              <td>ARS</td>
+              <td class="num">$ 987.654.321.098,76</td>
+              <td class="num">$ 990.120.000.000,00</td>
+              <td class="num">$ 2.465.678.901,24</td>
+              <td><span class="insignia nivel-AMARILLO">AMARILLO</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Servidores de virtualización</th>
+              <td>fyo S.A.</td>
+              <td>USD</td>
+              <td class="num">US$ 412.500,00</td>
+              <td class="num">US$ 398.740,00</td>
+              <td class="num">-US$ 13.760,00</td>
+              <td><span class="insignia nivel-VERDE">VERDE</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total en ARS</th>
+              <td></td>
+              <td></td>
+              <td class="num">$ 1.111.111.110.111,10</td>
+              <td class="num">$ 1.153.576.789.012,34</td>
+              <td class="num">$ 42.465.678.901,24</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="demo-seccion" id="formularios" aria-labelledby="titulo-formularios">
+      <h2 class="seccion" id="titulo-formularios">Formularios</h2>
+      <form class="formulario" onsubmit="return false">
+        <label for="demo-concepto">
+          Concepto
+          <input id="demo-concepto" name="concepto" type="text" value="Renovación de licencias de backup en red">
+        </label>
+        <label for="demo-moneda">
+          Moneda
+          <select id="demo-moneda" name="moneda">
+            <option>ARS</option>
+            <option>USD</option>
+          </select>
+        </label>
+        <label for="demo-monto">
+          Monto presupuestado
+          <input id="demo-monto" name="monto" type="number" step="any" inputmode="decimal" aria-describedby="demo-monto-ayuda">
+          <span id="demo-monto-ayuda" class="leyenda">En la moneda elegida, sin separador de miles.</span>
+        </label>
+        <label for="demo-inventario">
+          <input id="demo-inventario" name="inventario" type="checkbox" checked>
+          Afecta inventario
+        </label>
+        <div class="acciones-form">
+          <button type="submit">Crear compra</button>
+          <button type="button" class="secundario">Cancelar</button>
+          <button type="button" disabled>Guardando…</button>
+        </div>
+        <div class="acciones-form">
+          <span role="alert" class="error">Falta el monto presupuestado.</span>
+          <span role="status" class="ok">Listo</span>
+        </div>
+      </form>
+    </section>
+
+    <section class="demo-seccion" id="paneles" aria-labelledby="titulo-paneles">
+      <h2 class="seccion" id="titulo-paneles">Paneles</h2>
+      <div class="paneles-edicion">
+        <section class="panel" aria-labelledby="titulo-generar">
+          <h2 id="titulo-generar">Generar compras del mes</h2>
+          <p>Crea una compra programada por cada ítem con presupuesto en marzo que todavía no tenga una.</p>
+          <button type="button">Generar compras del mes</button>
+        </section>
+        <section class="panel" aria-labelledby="titulo-tc">
+          <h2 id="titulo-tc">Tipo de cambio</h2>
+          <dl class="datos">
+            <div><dt>Mes</dt><dd>marzo</dd></div>
+            <div><dt>Cotización</dt><dd>$ 1.075,00</dd></div>
+            <div><dt>Fuente</dt><dd>BNA, vendedor</dd></div>
+          </dl>
+        </section>
+      </div>
+    </section>
+
+    <section class="demo-seccion" id="visor" aria-labelledby="titulo-visor">
+      <h2 class="seccion" id="titulo-visor">Visor de PDF</h2>
+      <p class="leyenda">Un modal nativo: se cierra con «Cerrar», con Esc o con un clic en el fondo.</p>
+      <button type="button" id="abrir-visor" class="secundario">Ver comprobante</button>
+      <dialog class="visor-pdf" id="visor-pdf" aria-label="Visor de factura-0001-00012345.pdf">
+        <div class="visor-pdf-barra">
+          <strong>factura-0001-00012345.pdf</strong>
+          <a href="#visor">Abrir en pestaña nueva</a>
+          <button type="button" class="secundario" id="cerrar-visor">Cerrar</button>
+        </div>
+        <iframe class="visor-pdf-marco" title="Comprobante PDF: factura-0001-00012345.pdf"
+          srcdoc="&lt;style&gt;:root{color-scheme:light dark;font-family:system-ui,sans-serif}body{display:grid;place-items:center;height:90vh;margin:0}&lt;/style&gt;&lt;p&gt;Acá se ve el PDF del comprobante.&lt;/p&gt;"></iframe>
+      </dialog>
+    </section>
+
+    <section class="demo-seccion" id="tipografia" aria-labelledby="titulo-tipografia">
+      <h2 class="seccion" id="titulo-tipografia">Tipografía</h2>
+      <p class="etiqueta">Poppins 400 · 500 · 600</p>
+      <h1>Título de página (h1)</h1>
+      <h2 class="seccion">Título de sección (h2)</h2>
+      <h3>Subtítulo (h3)</h3>
+      <p>Texto de cuerpo. Claro, sintético y simple: decimos lo necesario y nada más. <strong>Lo importante va en 600</strong>, nunca en 700.</p>
+      <p class="leyenda">Leyenda: notas y ayudas en un tono más tenue.</p>
+      <p class="etiqueta">Etiqueta</p>
+    </section>
+
+    <section class="demo-seccion" id="paleta" aria-labelledby="titulo-paleta">
+      <h2 class="seccion" id="titulo-paleta">Paleta</h2>
+      <p class="leyenda">Cada token con su color en el tema actual. El celeste fyo es decorativo: para texto y botones se usa el acento.</p>
+      <ul class="demo-paleta">
+        <li><div class="demo-muestra" style="background: var(--celeste)"></div><code>--celeste</code></li>
+        <li><div class="demo-muestra" style="background: var(--gris-marca)"></div><code>--gris-marca</code></li>
+        <li><div class="demo-muestra" style="background: var(--fondo-marca)"></div><code>--fondo-marca</code></li>
+        <li><div class="demo-muestra" style="background: var(--velo)"></div><code>--velo</code></li>
+        <li><div class="demo-muestra" style="background: var(--fondo)"></div><code>--fondo</code></li>
+        <li><div class="demo-muestra" style="background: var(--superficie)"></div><code>--superficie</code></li>
+        <li><div class="demo-muestra" style="background: var(--cabecera-tabla)"></div><code>--cabecera-tabla</code></li>
+        <li><div class="demo-muestra" style="background: var(--resalte)"></div><code>--resalte</code></li>
+        <li><div class="demo-muestra" style="background: var(--texto)"></div><code>--texto</code></li>
+        <li><div class="demo-muestra" style="background: var(--tenue)"></div><code>--tenue</code></li>
+        <li><div class="demo-muestra" style="background: var(--borde)"></div><code>--borde</code></li>
+        <li><div class="demo-muestra" style="background: var(--borde-control)"></div><code>--borde-control</code></li>
+        <li><div class="demo-muestra" style="background: var(--acento)"></div><code>--acento</code></li>
+        <li><div class="demo-muestra" style="background: var(--acento-hover)"></div><code>--acento-hover</code></li>
+        <li><div class="demo-muestra" style="background: var(--sobre-acento)"></div><code>--sobre-acento</code></li>
+        <li><div class="demo-muestra" style="background: var(--subrayado-activo)"></div><code>--subrayado-activo</code></li>
+        <li><div class="demo-muestra" style="background: var(--error)"></div><code>--error</code></li>
+        <li><div class="demo-muestra" style="background: var(--ok)"></div><code>--ok</code></li>
+        <li><div class="demo-muestra" style="background: var(--rojo-fondo)"></div><code>--rojo-fondo</code></li>
+        <li><div class="demo-muestra" style="background: var(--rojo-texto)"></div><code>--rojo-texto</code></li>
+        <li><div class="demo-muestra" style="background: var(--rojo-borde)"></div><code>--rojo-borde</code></li>
+        <li><div class="demo-muestra" style="background: var(--amarillo-fondo)"></div><code>--amarillo-fondo</code></li>
+        <li><div class="demo-muestra" style="background: var(--amarillo-texto)"></div><code>--amarillo-texto</code></li>
+        <li><div class="demo-muestra" style="background: var(--amarillo-borde)"></div><code>--amarillo-borde</code></li>
+        <li><div class="demo-muestra" style="background: var(--verde-fondo)"></div><code>--verde-fondo</code></li>
+        <li><div class="demo-muestra" style="background: var(--verde-texto)"></div><code>--verde-texto</code></li>
+        <li><div class="demo-muestra" style="background: var(--verde-borde)"></div><code>--verde-borde</code></li>
+        <li><div class="demo-muestra" style="background: var(--gris-fondo)"></div><code>--gris-fondo</code></li>
+        <li><div class="demo-muestra" style="background: var(--gris-texto)"></div><code>--gris-texto</code></li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const visor = document.getElementById("visor-pdf");
+    document.getElementById("abrir-visor").addEventListener("click", () => visor.showModal());
+    document.getElementById("cerrar-visor").addEventListener("click", () => visor.close());
+    visor.addEventListener("click", (e) => { if (e.target === visor) visor.close(); });
+  </script>
+</body>
+</html>

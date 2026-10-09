@@ -1,0 +1,166 @@
+/* ==========================================================================
+   fyo-ui · componentes: encabezado y navegación, tarjetas, avisos y alertas,
+   insignias, paneles, visor de PDF y pantalla de login.
+   Requiere tokens.css y base.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   Encabezado y navegación
+   ========================================================================== */
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* Área de protección del logo (manual, pág. 15): libre arriba, abajo, a la izquierda y entre filas. */
+  gap: var(--proteccion-logo) var(--espacio-5);
+  padding: var(--proteccion-logo);
+  background: var(--superficie);
+  color: var(--texto);
+  border-bottom: 1px solid var(--borde);
+}
+.marca { display: flex; align-items: center; gap: var(--proteccion-logo); color: var(--texto); text-decoration: none; }
+.marca img { display: block; height: var(--logo-alto-encabezado); width: auto; } /* ≥ 70 px de ancho (manual, pág. 14) */
+.marca-producto {
+  padding-left: var(--espacio-3);
+  border-left: 1px solid var(--borde);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlineado-titulo);
+  color: var(--tenue);
+}
+.encabezado nav { display: flex; flex-wrap: wrap; gap: var(--espacio-1) var(--espacio-1); flex: 1; }
+.encabezado nav a {
+  position: relative;
+  padding: var(--espacio-1) var(--espacio-3);
+  border-radius: var(--radio-sm);
+  color: var(--texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+}
+.encabezado nav a:hover { color: var(--acento); background: var(--resalte); }
+.encabezado nav a[aria-current="page"] { color: var(--acento); }
+.encabezado nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: var(--espacio-3);
+  right: var(--espacio-3);
+  bottom: calc(-1 * var(--espacio-1) + 2px);
+  height: 2px;
+  border-radius: var(--radio-pill);
+  background: var(--subrayado-activo);
+}
+.sesion { display: flex; align-items: center; gap: var(--espacio-3); font-size: var(--texto-sm); color: var(--tenue); }
+.sesion form { margin: 0; }
+/* Pantallas medianas y chicas: marca y sesión arriba, navegación en su propia fila. La separación entre
+   filas (--proteccion-logo) ya deja el aire de abajo del logo: el borde inferior puede ser más chico. */
+@media (max-width: 960px) {
+  .encabezado { padding-bottom: var(--espacio-2); }
+  .encabezado nav { order: 3; flex-basis: 100%; margin: 0 calc(-1 * var(--espacio-3)); }
+  .sesion { margin-left: auto; }
+}
+
+.contenido { max-width: 1200px; margin: 0 auto; padding: var(--espacio-5) var(--espacio-4); }
+
+@media (max-width: 600px) {
+  .contenido { padding: var(--espacio-4) var(--espacio-3); }
+  .encabezado { column-gap: var(--espacio-4); }
+  /* Logo y sesión en una sola fila: el nombre del producto se oculta (el logo y el título de la página bastan). */
+  .marca-producto { display: none; }
+  /* El nombre del usuario no entra al lado del botón: queda solo para lectores de pantalla. «Cerrar sesión» sigue visible. */
+  .sesion > span { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  /* Navegación en una sola fila que se desplaza de costado, sin barra visible. */
+  .encabezado nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .encabezado nav::-webkit-scrollbar { display: none; }
+  .encabezado nav a { display: inline-flex; align-items: center; flex: none; min-height: var(--alto-control); white-space: nowrap; outline-offset: -3px; }
+  /* Con desplazamiento, el subrayado y el anillo de foco van adentro del enlace para que no se recorten. */
+  .encabezado nav a[aria-current="page"]::after { bottom: var(--espacio-1); }
+}
+
+/* ==========================================================================
+   Paneles, tarjetas y selector de mes
+   ========================================================================== */
+.selector-mes { display: flex; flex-wrap: wrap; align-items: end; gap: var(--espacio-2) var(--espacio-3); margin: 0 0 var(--espacio-4); }
+.selector-mes label { min-width: 200px; }
+
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--espacio-3); margin: 0 0 var(--espacio-5); }
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-top: 3px solid var(--celeste);
+  border-radius: var(--radio-md);
+  padding: var(--espacio-3) var(--espacio-4) var(--espacio-4);
+  box-shadow: var(--sombra-tarjeta);
+}
+.tarjeta .monto { font-size: var(--texto-lg); font-weight: var(--peso-fuerte); line-height: var(--interlineado-titulo); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tarjeta .monto-usd { margin-top: var(--espacio-1); font-size: var(--texto-sm); color: var(--tenue); font-variant-numeric: tabular-nums; }
+.tarjeta.excedido { border-color: var(--rojo-borde); background: var(--rojo-fondo); }
+.tarjeta.excedido .monto, .tarjeta.excedido h2 { color: var(--rojo-texto); }
+.tarjeta .nota { margin: var(--espacio-1) 0 0; font-size: var(--texto-xs); font-weight: var(--peso-medio); color: var(--rojo-texto); }
+
+.aviso { border: 1px solid var(--amarillo-borde); background: var(--amarillo-fondo); color: var(--amarillo-texto); border-radius: var(--radio-md); padding: var(--espacio-2) var(--espacio-3); margin: 0 0 var(--espacio-4); }
+.aviso a { color: inherit; font-weight: var(--peso-fuerte); }
+
+.lista-alertas { list-style: none; margin: 0 0 var(--espacio-2); padding: 0; display: grid; gap: var(--espacio-2); }
+.alerta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--espacio-1) var(--espacio-3); border: 1px solid var(--borde); border-left: 4px solid var(--borde); background: var(--superficie); border-radius: var(--radio-md); padding: var(--espacio-2) var(--espacio-3); }
+.alerta .mensaje { flex: 1 1 260px; overflow-wrap: anywhere; }
+.alerta .tipo { font-size: var(--texto-xs); color: var(--tenue); }
+.alerta.nivel-ROJO { border-left-color: var(--rojo-borde); }
+.alerta.nivel-AMARILLO { border-left-color: var(--amarillo-borde); }
+.alerta.nivel-VERDE { border-left-color: var(--verde-borde); }
+
+
+.insignia { display: inline-block; padding: 0 var(--espacio-2); border-radius: var(--radio-pill); border: 1px solid transparent; font-size: var(--texto-xs); font-weight: var(--peso-fuerte); line-height: 1.6; letter-spacing: 0.03em; white-space: nowrap; }
+.insignia.nivel-ROJO { background: var(--rojo-fondo); color: var(--rojo-texto); border-color: var(--rojo-borde); }
+.insignia.nivel-AMARILLO { background: var(--amarillo-fondo); color: var(--amarillo-texto); border-color: var(--amarillo-borde); }
+.insignia.nivel-VERDE { background: var(--verde-fondo); color: var(--verde-texto); border-color: var(--verde-borde); }
+
+/* ---------- Paneles y formularios ---------- */
+.paneles-edicion { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--espacio-3); margin: 0 0 var(--espacio-5); }
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-md); padding: var(--espacio-4); box-shadow: var(--sombra-tarjeta); }
+/* Paneles apilados uno debajo de otro (p. ej. Configuración). */
+.apilado { margin-top: var(--espacio-3); }
+/* Fila de formularios lado a lado (p. ej. «Enviar plan ahora» y «Enviar cierre ahora»). */
+.fila-formularios { display: flex; flex-wrap: wrap; gap: var(--espacio-3); }
+form.formulario .acciones-form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2) var(--espacio-3); }
+form.formulario .acciones-form > div:empty { display: none; }
+
+.visor-pdf { border: 1px solid var(--borde); border-radius: var(--radio-md); padding: 0; margin: auto; background: var(--superficie); color: var(--texto); width: min(960px, 95vw); height: 90vh; max-width: none; max-height: none; overflow: hidden; }
+.visor-pdf[open] { display: flex; flex-direction: column; }
+.visor-pdf::backdrop { background: var(--velo); }
+.visor-pdf-barra { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-2) var(--espacio-4); padding: var(--espacio-2) var(--espacio-3); }
+.visor-pdf-marco { display: block; flex: 1; width: 100%; min-height: 0; border: 0; border-top: 1px solid var(--borde); }
+
+/* ==========================================================================
+   Login
+   ========================================================================== */
+.login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-6);
+  padding: var(--espacio-6) var(--espacio-4);
+  background: var(--fondo-marca) url("../marca/fondo-marca.webp") center / cover no-repeat;
+}
+.login-logo { display: block; height: 56px; width: auto; }
+.login-tarjeta {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--espacio-6);
+  background: var(--superficie);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+}
+.login-tarjeta h1 { font-size: var(--texto-lg); margin: 0 0 var(--espacio-1); }
+.login-tarjeta > p { margin: 0 0 var(--espacio-5); color: var(--tenue); font-size: var(--texto-sm); }
+.formulario-login { display: grid; gap: var(--espacio-4); }
+.formulario-login .error { margin: 0; font-size: var(--texto-sm); }
+.formulario-login button { margin-top: var(--espacio-1); font-size: var(--texto-md); }
+@media (max-width: 600px) {
+  .login-tarjeta { padding: var(--espacio-5); }
+}

@@ -1,0 +1,50 @@
+name: Release
+
+# Solo al subir una etiqueta de versión (vX.Y.Z). Usa únicamente el GITHUB_TOKEN del propio workflow.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    name: Verificar y publicar el Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # La etiqueta tiene que ser vX.Y.Z, coincidir con package.json y tener sección en el CHANGELOG.
+      - name: Validar la etiqueta
+        run: node scripts/etiqueta.mjs "$GITHUB_REF_NAME"
+      - name: Escribir las notas de versión
+        run: node scripts/etiqueta.mjs "$GITHUB_REF_NAME" --notas "$RUNNER_TEMP/notas.md"
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Instalar Chromium para la demo
+        run: npx playwright install --with-deps chromium
+      - name: Verificar
+        run: npm run verificar
+      - name: Empaquetar
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          # Lo mismo que el tarball de etiqueta de GitHub, que es lo que instalan las apps.
+          git archive --format=tar.gz --prefix="fyo-ui-${version}/" -o "fyo-ui-${version}.tar.gz" HEAD
+          # Tarball de npm, solo con lo que declara "files" de package.json.
+          npm pack
+      - name: Crear el Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" \
+            --title "fyo-ui $GITHUB_REF_NAME" \
+            --notes-file "$RUNNER_TEMP/notas.md" \
+            "fyo-ui-${version}.tar.gz" \
+            "fyo-ui-${version}.tgz"

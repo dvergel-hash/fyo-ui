@@ -1,0 +1,116 @@
+/* ==========================================================================
+   fyo-ui · base: reset, tipografía, tablas genéricas, formularios y botones,
+   foco visible y utilidades. Requiere tokens.css (variables y fuentes).
+   ========================================================================== */
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-normal);
+  line-height: var(--interlineado);
+}
+
+a { color: var(--acento); }
+a:hover { color: var(--acento-hover); }
+
+/* Sólo se cargan 400/500/600: nada de negritas sintéticas a 700. */
+b, strong, th { font-weight: var(--peso-fuerte); }
+small { font-size: var(--texto-sm); }
+
+h1, h2, h3 { font-weight: var(--peso-fuerte); line-height: var(--interlineado-titulo); }
+h1 { font-size: var(--texto-xl); margin: 0 0 var(--espacio-4); letter-spacing: -0.01em; }
+/* Un único estilo de h2 para secciones, paneles y formularios. */
+h2.seccion, .panel h2 { font-size: var(--texto-lg); margin: var(--espacio-5) 0 var(--espacio-2); }
+.panel h2 { margin-top: 0; }
+h3 { font-size: var(--texto-md); margin: var(--espacio-4) 0 var(--espacio-2); }
+
+/* Etiqueta: rótulo chico en mayúsculas (p. ej. el título de una tarjeta del tablero). */
+.etiqueta, .tarjeta h2 {
+  margin: 0 0 var(--espacio-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlineado);
+  color: var(--tenue);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ==========================================================================
+   Tablas
+   ========================================================================== */
+.tabla-contenedor {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+}
+table { border-collapse: collapse; width: 100%; background: var(--superficie); color: var(--texto); font-size: var(--texto-sm); }
+th, td { padding: var(--espacio-2) var(--espacio-3); border-bottom: 1px solid var(--borde); text-align: left; white-space: nowrap; }
+thead th { background: var(--cabecera-tabla); font-weight: var(--peso-fuerte); color: var(--texto); }
+tbody th { font-weight: var(--peso-medio); }
+tbody:last-child tr:last-child > *, tfoot tr:last-child > * { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   Formularios y botones
+   ========================================================================== */
+form.formulario { display: grid; gap: var(--espacio-3); max-width: 520px; }
+label { display: grid; gap: var(--espacio-1); font-size: var(--texto-sm); font-weight: var(--peso-medio); }
+label.casilla, label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: var(--espacio-2); }
+input, select, textarea {
+  font: inherit;
+  font-size: var(--texto-md);
+  font-weight: var(--peso-normal);
+  padding: var(--espacio-1) var(--espacio-2);
+  border: 1px solid var(--borde-control);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  color: var(--texto);
+}
+input, select { min-height: var(--alto-control); }
+input[type="checkbox"] { accent-color: var(--acento); width: 1rem; height: 1rem; min-height: 0; margin: 0; }
+
+button {
+  font: inherit;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlineado);
+  min-height: var(--alto-control);
+  padding: var(--espacio-1) var(--espacio-4);
+  border: 1px solid var(--acento);
+  border-radius: var(--radio-sm);
+  background: var(--acento);
+  color: var(--sobre-acento);
+  cursor: pointer;
+}
+button:hover { background: var(--acento-hover); border-color: var(--acento-hover); }
+button.secundario { background: var(--superficie); color: var(--acento); border-color: var(--acento); }
+button.secundario:hover { background: var(--resalte); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+@media (prefers-reduced-motion: no-preference) {
+  button, .encabezado nav a { transition: background-color 120ms ease, color 120ms ease; }
+}
+
+.error { color: var(--error); }
+.ok { color: var(--ok); }
+
+:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+.solo-lectores { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+dl.datos { display: grid; gap: var(--espacio-2); margin: 0; max-width: 640px; }
+dl.datos > div { display: grid; grid-template-columns: minmax(130px, 200px) 1fr; gap: var(--espacio-2); }
+dl.datos dt { color: var(--tenue); font-size: var(--texto-sm); }
+dl.datos dd { margin: 0; overflow-wrap: anywhere; }
+tfoot th, tfoot td { font-weight: var(--peso-fuerte); background: var(--cabecera-tabla); }
+.leyenda { color: var(--tenue); font-size: var(--texto-sm); font-weight: var(--peso-normal); margin: var(--espacio-2) 0; }
+label > .leyenda { margin: 0; }

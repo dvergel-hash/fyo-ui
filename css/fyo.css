@@ -1,0 +1,4 @@
+/* fyo-ui: punto de entrada. Tokens, base y componentes, en ese orden. */
+@import "./tokens.css";
+@import "./base.css";
+@import "./componentes.css";

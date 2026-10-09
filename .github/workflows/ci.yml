@@ -1,0 +1,47 @@
+name: CI
+
+# Se corre en cada pull request y en cada push a main.
+# Sin secretos: el workflow solo lee el repositorio.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Una corrida nueva sobre la misma ref cancela la anterior que siga en curso.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Verificar el paquete
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Instalar Chromium para la demo
+        run: npx playwright install --with-deps chromium
+      # Tests, contraste, variables, demo visual y README.
+      - name: Verificar
+        run: npm run verificar
+      # Instala `git archive HEAD` en un proyecto Next.js, como lo hace un consumidor, sin `git` en el PATH
+      # (las imágenes node:22-slim no lo traen).
+      - name: Verificar la instalación sin git
+        run: npm run verificar:instalacion -- --sin-git
+      - name: Subir capturas de la demo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-salida
+          path: demo-salida/
+          retention-days: 7
+          if-no-files-found: ignore

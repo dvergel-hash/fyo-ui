@@ -1,0 +1,58 @@
+{
+  "name": "fyo-ui",
+  "version": "1.0.0",
+  "description": "Estilos, tokens y recursos de marca de fyo (CSS plano, sin framework).",
+  "keywords": [
+    "fyo",
+    "css",
+    "design-tokens",
+    "design-system",
+    "ui",
+    "poppins"
+  ],
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dvergel-hash/fyo-ui.git"
+  },
+  "homepage": "https://github.com/dvergel-hash/fyo-ui#readme",
+  "bugs": {
+    "url": "https://github.com/dvergel-hash/fyo-ui/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./css/fyo.css",
+    "./css/*": "./css/*",
+    "./fonts/*": "./fonts/*",
+    "./marca/*": "./marca/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "css",
+    "fonts",
+    "marca",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "verificar:contraste": "node scripts/contraste.mjs",
+    "verificar:variables": "node scripts/variables.mjs",
+    "verificar:demo": "node scripts/demo.mjs",
+    "verificar:readme": "node scripts/readme.mjs",
+    "verificar:instalacion": "node scripts/instalacion.mjs",
+    "verificar:plugin": "node scripts/plugin.mjs",
+    "verificar": "npm test && node scripts/contraste.mjs && node scripts/variables.mjs && node scripts/demo.mjs && node scripts/readme.mjs && node scripts/plugin.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1"
+  }
+}
