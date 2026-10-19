@@ -4,6 +4,10 @@ Todos los cambios del paquete. Sigue [versionado semántico](https://semver.org/
 
 ## [Sin publicar]
 
+### Corregido
+
+- **`error.tsx` con `retry`**: el patrón de la skill `fyo-diseno` usaba `reset`, que en Next 16.3 solo redibuja sin volver a pedir los datos, así que «Reintentar» volvía a fallar si el error venía del servidor. Ahora usa `retry` (estable desde Next 16.3), el título es el `h1` de la pantalla (el error reemplaza a la página) y el detalle va a la consola. El paquete no cambia.
+
 ## [1.0.1] - 2026-10-10
 
 Parche de documentación y de verificación: el CSS, las fuentes y los recursos de marca no cambian.

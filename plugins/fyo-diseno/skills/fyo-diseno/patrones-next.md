@@ -290,16 +290,26 @@ export default function Cargando() {
 ```tsx
 // app/(app)/compras/error.tsx — tiene que ser cliente
 "use client";
-export default function ErrorCompras({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+import { useEffect } from "react";
+
+export default function ErrorCompras({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
+  // El detalle va a la consola (y el digest a los logs del servidor), nunca a la pantalla.
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
   return (
     <section className="panel" role="alert">
-      <h2>No pudimos cargar las compras</h2>
+      {/* Reemplaza a la página: es el único título de la pantalla. */}
+      <h1>No pudimos cargar las compras</h1>
       <p className="leyenda">Probá de nuevo en unos segundos. Si sigue pasando, avisá a Infraestructura{error.digest ? ` (código ${error.digest})` : ""}.</p>
-      <button type="button" onClick={() => reset()}>Reintentar</button>
+      <button type="button" onClick={() => retry()}>Reintentar</button>
     </section>
   );
 }
 ```
+
+«Reintentar» usa **`retry`** (estable desde Next 16.3): vuelve a pedir los datos al servidor y redibuja. `reset` sigue existiendo, pero solo redibuja sin volver a pedir los datos, así que si el error vino del servidor vuelve a fallar igual. En Next anterior a 16.3, `retry` no existe: ahí se usa `reset` junto con `router.refresh()`.
 
 ```tsx
 // app/not-found.tsx (y app/(app)/compras/[id]/not-found.tsx con notFound() en la página)
