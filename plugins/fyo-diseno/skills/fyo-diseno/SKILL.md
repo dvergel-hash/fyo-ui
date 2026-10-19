@@ -12,14 +12,14 @@ Toda interfaz de fyo parte del paquete **`fyo-ui`** (CSS plano: variables, compo
 En el `package.json` de la app, con el tarball adjunto al Release (`…/releases/download/vX.Y.Z/fyo-ui-X.Y.Z.tgz`):
 
 ```json
-{ "dependencies": { "fyo-ui": "https://github.com/dvergel-hash/fyo-ui/releases/download/v1.0.1/fyo-ui-1.0.1.tgz" } }
+{ "dependencies": { "fyo-ui": "https://github.com/dvergel-hash/fyo-ui/releases/download/v1.0.2/fyo-ui-1.0.2.tgz" } }
 ```
 
 - **Por qué esa URL**: `github:…` necesita `git` y las imágenes `node:22-slim` no lo traen; el archivo de etiqueta de GitHub (`…/archive/…`) puede cambiar de bytes y romper la integridad del lockfile. El asset del Release no cambia. El build tiene que llegar a `github.com` (302), `release-assets.githubusercontent.com` y `registry.npmjs.org`.
 - **Next.js**: `import "fyo-ui/css/fyo.css";` una sola vez, en `app/layout.tsx`. Logos importados como imágenes: `import logoColor from "fyo-ui/marca/logo-fyo-color.png"` (también `logo-fyo-blanco.png`, `logo-fyo-blanco-login.png`, `favicon.ico`, `fondo-marca.webp`), **siempre a través de `urlImagen(logoColor)`**: con Turbopack (Next 16) la imagen llega como string y `.src` da `undefined` sin que lo note `tsc` ni `next build`. El helper está en [patrones-next.md](patrones-next.md).
 - **HTML plano, n8n u Odoo**: copiá `css/`, `fonts/` y `marca/` como carpetas hermanas y enlazá `css/fyo.css`.
 - Los elementos sin clase (`h1`–`h3`, `a`, `label`, `input`, `select`, `button`, `table`) ya salen con el estilo de fyo. Las clases (`.encabezado`, `.tarjeta`, `.panel`, `.aviso`, `.insignia`, `.tabla-contenedor`, `.login`…) están en el README del paquete y en `demo/index.html`.
-- Los estilos propios de la app van en un CSS aparte, **solo con `var(--…)`**. Para actualizar la marca se cambia la versión en los dos lugares de la URL (`v1.0.1/fyo-ui-1.0.1.tgz` → `v1.1.0/fyo-ui-1.1.0.tgz`).
+- Los estilos propios de la app van en un CSS aparte, **solo con `var(--…)`**. Para actualizar la marca se cambia la versión en los dos lugares de la URL (`v1.0.2/fyo-ui-1.0.2.tgz` → `v1.1.0/fyo-ui-1.1.0.tgz`).
 
 ## 2. Reglas de marca (del manual)
 

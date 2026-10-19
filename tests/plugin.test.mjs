@@ -173,7 +173,7 @@ test("el marketplace real publica fyo-diseno desde ./plugins/fyo-diseno, con ver
   assert.deepEqual(marketplace.plugins.map((p) => [p.name, p.source]), [["fyo-diseno", "./plugins/fyo-diseno"]]);
   assert.equal(marketplace.plugins[0].version, undefined);
   assert.equal(plugin.name, "fyo-diseno");
-  assert.equal(plugin.version, "1.0.1");
+  assert.equal(plugin.version, "1.0.2");
   assert.equal(plugin.license, "MIT");
 });
 

@@ -53,9 +53,9 @@ test("el tarball pesa menos de 400 KB", () => {
   assert.ok(empaque.size < 400 * 1024, `el tarball pesa ${empaque.size} bytes`);
 });
 
-test("package.json: versión 1.0.1 y metadatos del paquete", () => {
+test("package.json: versión 1.0.2 y metadatos del paquete", () => {
   assert.equal(pkg.name, "fyo-ui");
-  assert.equal(pkg.version, "1.0.1");
+  assert.equal(pkg.version, "1.0.2");
   assert.equal(pkg.license, "MIT");
   assert.equal(pkg.type, "module");
   assert.equal(pkg.private, false);

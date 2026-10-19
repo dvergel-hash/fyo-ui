@@ -17,14 +17,14 @@ fyo-ui **no se publica en npm**: se instala desde el tarball adjunto (asset) a c
 ```json
 {
   "dependencies": {
-    "fyo-ui": "https://github.com/dvergel-hash/fyo-ui/releases/download/v1.0.1/fyo-ui-1.0.1.tgz"
+    "fyo-ui": "https://github.com/dvergel-hash/fyo-ui/releases/download/v1.0.2/fyo-ui-1.0.2.tgz"
   }
 }
 ```
 
 La forma general es `https://github.com/dvergel-hash/fyo-ui/releases/download/vX.Y.Z/fyo-ui-X.Y.Z.tgz`. Ese archivo es el que arma `npm pack` al publicar el Release: trae **solo los archivos del paquete** (`css/`, `fonts/`, `marca/`, `README.md`, `CHANGELOG.md`, `LICENSE` y `package.json`) dentro de la carpeta `package/`, como cualquier paquete de npm.
 
-Después, `npm install`. Para actualizar, cambiá la versión en los dos lugares de la URL (`v1.0.1/fyo-ui-1.0.1.tgz` → `v1.1.0/fyo-ui-1.1.0.tgz`) y volvé a instalar.
+Después, `npm install`. Para actualizar, cambiá la versión en los dos lugares de la URL (`v1.0.2/fyo-ui-1.0.2.tgz` → `v1.1.0/fyo-ui-1.1.0.tgz`) y volvé a instalar.
 
 **Red del build.** La instalación tiene que llegar a `github.com` (responde con una redirección 302) y a `release-assets.githubusercontent.com` (donde está el archivo), además de `registry.npmjs.org` para el resto de las dependencias. Si construís detrás de un proxy o con una lista de hosts permitidos, habilitá los tres.
 
@@ -440,7 +440,7 @@ fyo-ui sigue [versionado semántico](https://semver.org/lang/es/). La API públi
 | Renombrar o quitar un token o una clase | mayor (`2.0.0`) |
 | Cambiar lo que significa un token o una clase | mayor (`2.0.0`) |
 
-Cada cambio queda en [`CHANGELOG.md`](CHANGELOG.md). Fijá siempre la versión exacta en la URL de tu `package.json` (`v1.0.1/fyo-ui-1.0.1.tgz`) y actualizala a propósito.
+Cada cambio queda en [`CHANGELOG.md`](CHANGELOG.md). Fijá siempre la versión exacta en la URL de tu `package.json` (`v1.0.2/fyo-ui-1.0.2.tgz`) y actualizala a propósito.
 
 ## Accesibilidad
 
